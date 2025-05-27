@@ -37,7 +37,7 @@ async def search(body: RequestBody):
         timestamp = datetime.utcnow().isoformat()
 
         text = response.choices[0].text.strip()
-        usage = response.get("usage", {})
+        usage = response.to_dict().get("usage") or {}
         cost_estimate = 0.002 * usage.get("total_tokens", 0) / 1000  # ~$0.002 per 1K tokens
 
         # Return response with metadata
