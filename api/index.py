@@ -1,24 +1,15 @@
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from fastapi.responses import JSONResponse
 from mangum import Mangum
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"]
-)
-
-class Query(BaseModel):
+class RequestBody(BaseModel):
     query: str
 
 @app.post("/search")
-async def search(body: Query):
-    return JSONResponse(content={"response": f"Received query: {body.query}"})
+async def search(body: RequestBody):
+    return JSONResponse(content={"response": f"You searched for: {body.query}"})
 
-# Vercel will look for this handler
 handler = Mangum(app)
