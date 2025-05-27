@@ -1,32 +1,16 @@
-# AI Multimodal Web Search Agent
+# FastAPI Dockerized App
 
-A full-stack project that uses OpenAI GPT-4 and DuckDuckGo to search the web, summarize results, and interact through a web UI.
-
-## Features
-- FastAPI backend with LangChain and OpenAI
-- React + Tailwind frontend
-- DuckDuckGo-based real-time search
-- Agent-style reasoning and summary
-- Extendable with Whisper, OCR, and more
-
-## Stack
-- Frontend: React, Tailwind CSS, Axios
-- Backend: FastAPI, LangChain, OpenAI API
-- Tools: DuckDuckGoSearchRun (can add Playwright, Whisper, OCR)
-
-## Quick Start
+## Run locally
 
 ```bash
-# In /backend
-python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload
-
-# In /frontend
-npm install
-npm start
+docker build -t fastapi-app .
+docker run -p 8000:8000 fastapi-app
 ```
 
-Backend will run on `http://localhost:8000`  
-Frontend will run on `http://localhost:3000`
+Then test:
+
+```bash
+curl -X POST http://localhost:8000/search \
+-H "Content-Type: application/json" \
+-d '{"query": "hello"}'
+```
