@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-langchain
-openai
-duckduckgo-search
-python-dotenv
-textract
-fastapi
-mangum
