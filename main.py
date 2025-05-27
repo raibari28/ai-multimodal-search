@@ -4,6 +4,8 @@ from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 import openai
 import os
+import time
+from datetime import datetime
 
 # Load environment variables from .env file
 load_dotenv()
@@ -21,14 +23,32 @@ class RequestBody(BaseModel):
 @app.post("/search")
 async def search(body: RequestBody):
     try:
+        start_time = time.time()
+
         # Call OpenAI API
         response = openai.Completion.create(
             engine="text-davinci-003",
             prompt=body.query,
             max_tokens=100
         )
-        # Return result
-        return JSONResponse(content={"response": response.choices[0].text.strip()})
+
+        end_time = time.time()
+        duration = round(end_time - start_time, 2)
+        timestamp = datetime.utcnow().isoformat()
+
+        text = response.choices[0].text.strip()
+        usage = response.get("usage", {})
+        cost_estimate = 0.002 * usage.get("total_tokens", 0) / 1000  # ~$0.002 per 1K tokens
+
+        # Return response with metadata
+        return JSONResponse(content={
+            "response": text,
+            "query": body.query,
+            "tokens_used": usage,
+            "cost_usd_estimate": round(cost_estimate, 6),
+            "timestamp_utc": timestamp,
+            "duration_seconds": duration
+        })
+
     except Exception as e:
-        # Handle errors gracefully
         return JSONResponse(status_code=500, content={"error": str(e)})
