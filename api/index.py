@@ -12,5 +12,6 @@ class RequestBody(BaseModel):
 async def search(body: RequestBody):
     return JSONResponse(content={"response": f"You searched for: {body.query}"})
 
-# AWS Lambda-compatible handler for Vercel
+# Lambda-compatible handler
 handler = Mangum(app)
+
