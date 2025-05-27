@@ -1,12 +1,4 @@
-from fastapi import FastAPI
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+import os
+import openai
 
-app = FastAPI()
-
-class RequestBody(BaseModel):
-    query: str
-
-@app.post("/search")
-async def search(body: RequestBody):
-    return JSONResponse(content={"response": f"You searched for: {body.query}"})
+openai.api_key = os.getenv("OPENAI_API_KEY")
