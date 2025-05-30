@@ -1,6 +1,6 @@
 ---
 title: AI Multimodal Search
-emoji: 🐠
+emoji: 🔍
 colorFrom: blue
 colorTo: red
 sdk: docker
