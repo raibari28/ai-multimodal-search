@@ -1,5 +1,5 @@
 ---
-title: Ai Multimodal Search
+title: AI Multimodal Search
 emoji: 🐠
 colorFrom: blue
 colorTo: red
