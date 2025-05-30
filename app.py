@@ -1,58 +1,73 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from fastapi.responses import JSONResponse
-from dotenv import load_dotenv
-from openai import OpenAI
-import os
+import streamlit as st
+import pandas as pd
+import docx
+import pptx
+import pytesseract
+from PIL import Image
+import pdfplumber
+import tempfile
 
-load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+from utils.summarizer import gpt_generate_query, gpt_summarize
+from utils.browser import google_search_and_scrape
+from utils.extractor import extract_main_text
 
-app = FastAPI()
+st.set_page_config(page_title="AI Multimodal Search & Research", layout="wide")
+st.title("🔎 AI Multimodal Search & Document Researcher")
 
-class Query(BaseModel):
-    query: str
-    model: str = "gpt-3.5-turbo"
-
-@app.post("/search")
-async def search(query: Query):
-    model_used = query.model
-    model_prices = {
-        "gpt-3.5-turbo": 0.002,
-        "gpt-4": 0.03,
-        "gpt-4o": 0.005,
-        "gpt-4.1": 0.03
-    }
+def extract_text_from_file(uploaded_file):
+    filetype = uploaded_file.type
     try:
-        resp = client.chat.completions.create(
-            model=query.model,
-            messages=[{"role": "user", "content": query.query}],
-            max_tokens=100
-        )
+        if filetype == "application/pdf":
+            with pdfplumber.open(uploaded_file) as pdf:
+                return "\n".join([page.extract_text() or "" for page in pdf.pages])
+        elif filetype in [
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/msword"]:
+            doc = docx.Document(uploaded_file)
+            return "\n".join([p.text for p in doc.paragraphs])
+        elif filetype in [
+            "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]:
+            df = pd.read_excel(uploaded_file)
+            return df.to_string()
+        elif filetype in [
+            "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation"]:
+            prs = pptx.Presentation(uploaded_file)
+            return "\n".join([shape.text for slide in prs.slides for shape in slide.shapes if hasattr(shape, "text") and shape.text])
+        elif filetype in ["image/jpeg", "image/png"]:
+            image = Image.open(uploaded_file)
+            return pytesseract.image_to_string(image)
+        else:
+            return "Unsupported file type."
     except Exception as e:
-        # Fallback to gpt-3.5-turbo if any error occurs
-        model_used = "gpt-3.5-turbo"
-        try:
-            resp = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": query.query}],
-                max_tokens=100
+        return f"Extraction failed: {str(e)}"
+
+uploaded = st.file_uploader(
+    "Upload a document (DOCX, XLSX, PPTX, PDF, JPG, PNG)", type=["pdf", "docx", "xlsx", "pptx", "jpg", "jpeg", "png"])
+
+if uploaded:
+    text = extract_text_from_file(uploaded)
+    st.text_area("📄 Extracted Content", text[:4000], height=300)
+
+    if st.button("Research & Cross-Check Online"):
+        with st.spinner("Generating research query from document..."):
+            query = gpt_generate_query(text[:2000])
+            st.write("**Generated Search Query:**", query)
+        with st.spinner("Searching Google and extracting web content..."):
+            html = google_search_and_scrape(query)
+            web_article = extract_main_text(html)
+        with st.spinner("LLM: Comparing Document & Online Source..."):
+            crosscheck_prompt = (
+                f"Uploaded Document Content:\n{text[:1000]}\n\n---\n"
+                f"Web Source Content:\n{web_article[:2000]}\n\n"
+                "Compare and report agreements, disagreements, or discrepancies. "
+                "Summarize the main points and note any important findings."
             )
-        except Exception as e2:
-            return JSONResponse(status_code=500, content={
-                "error": f"Both requested model ({query.model}) and fallback (gpt-3.5-turbo) failed: {str(e2)}"
-            })
+            summary = gpt_summarize(crosscheck_prompt)
+            st.success(summary)
 
-    text = resp.choices[0].message.content.strip()
-    tokens = resp.usage.total_tokens
-    cost = round(tokens / 1000 * model_prices.get(model_used, 0.002), 6)
-    return {
-        "response": text,
-        "tokens_used": tokens,
-        "cost_usd_estimate": cost,
-        "model_used": model_used
-    }
-
-@app.get("/")
-def root():
-    return {"message": "Hello from AI Multimodal Search! The API is running."}
+st.markdown("""
+---
+**Supports**: PDF, DOCX, XLSX, PPTX, JPG, PNG  
+- Uses OCR for images  
+- LLM-powered summarization & fact cross-check  
+- Requires [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) for image support
+""")
