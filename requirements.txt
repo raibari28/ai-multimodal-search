@@ -1,5 +1,12 @@
-fastapi
-uvicorn
-pydantic
+streamlit
 openai
-python-dotenv
+playwright
+beautifulsoup4
+trafilatura
+python-docx
+openpyxl
+python-pptx
+pandas
+pdfplumber
+pillow
+pytesseract
