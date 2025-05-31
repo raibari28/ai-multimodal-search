@@ -10,3 +10,5 @@ pandas
 pdfplumber
 pillow
 pytesseract
+fastapi
+mangum
