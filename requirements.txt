@@ -1,5 +1,6 @@
 streamlit
 openai
+uvicorn
 playwright
 beautifulsoup4
 trafilatura
