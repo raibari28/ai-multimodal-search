@@ -8,6 +8,7 @@ python-docx
 openpyxl
 python-pptx
 pandas
+python-multipart
 pdfplumber
 pillow
 pytesseract
