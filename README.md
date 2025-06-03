@@ -32,4 +32,4 @@ A Streamlit app that lets you:
 ## Notes
 
 - Only text is extracted from images and office documents (no formatting, formulas, or embedded objects).
-- Cross-check is as good as the OpenAI model and web search allow.
+- Cross-check is as good as the OpenAI model and web search allows.
