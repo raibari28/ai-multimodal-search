@@ -1,19 +1,13 @@
-# Use an official Python runtime as the base image
 FROM python:3.11-slim
-
-# Set environment variables to avoid Python buffering and prompt
-ENV PYTHONUNBUFFERED=1
-ENV PIP_NO_CACHE_DIR=1
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies for Playwright and OCR
-RUN apt-get update && \
-    apt-get install -y \
-    curl \
-    wget \
-    gnupg \
+# Copy everything to the container
+COPY . /app
+
+# Install system dependencies (add more as needed)
+RUN apt-get update && apt-get install -y \
     build-essential \
     libglib2.0-0 \
     libnss3 \
@@ -27,19 +21,16 @@ RUN apt-get update && \
     tesseract-ocr \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy your code into the container
-COPY . /app
-
 # Install Python dependencies
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Install Playwright browsers (Chromium, Firefox, WebKit) and dependencies
+# If you need Playwright browsers:
 RUN pip install playwright
 RUN playwright install --with-deps
 
-# Expose port (adjust if you run on a different port)
+# Expose the FastAPI port
 EXPOSE 8000
 
-# Command to start your FastAPI server (update if your entry point is different)
+# Start FastAPI with uvicorn (Linux style, NOT Windows "cmd")
 CMD ["uvicorn", "api.research:app", "--host", "0.0.0.0", "--port", "8000"]
