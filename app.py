@@ -105,7 +105,7 @@ if uploaded:
 
 st.markdown("""
 ---
-**Supports**: PDF, DOCX, XLSX, PPTX, JPG, PNG  
+**Supports**: PDF, DOCX, XLSX, PPTX, JPG, JPEG, PNG  
 - Uses OCR for images  
 - LLM-powered summarization & fact cross-check  
 - Requires [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) for image support  
