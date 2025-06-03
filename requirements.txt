@@ -13,4 +13,4 @@ pandas
 pdfplumber
 pillow
 pytesseract
-google-search-results
+serpapi
