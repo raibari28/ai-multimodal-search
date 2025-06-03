@@ -39,13 +39,26 @@ async def duckduckgo_search_and_scrape(query):
             "Chrome/120.0.0.0 Safari/537.36"
         ))
         await page.goto(f"https://duckduckgo.com/?q={query}", timeout=60000)
-        await page.wait_for_selector("a.result__a", timeout=15000)
-        links = await page.query_selector_all("a.result__a")
-        if links:
-            await links[0].click()
-            await page.wait_for_load_state("domcontentloaded")
+        # Wait longer, print HTML for debugging if needed
+        try:
+            await page.wait_for_selector("a.result__a", timeout=30000)
+            links = await page.query_selector_all("a.result__a")
+            if not links:
+                # Fallback to all links if DuckDuckGo layout changed
+                links = await page.query_selector_all("a[href]")
+            if links:
+                await links[0].click()
+                await page.wait_for_load_state("domcontentloaded")
+                html = await page.content()
+                await browser.close()
+                return html
+            else:
+                html = await page.content()
+                print("NO DUCKDUCKGO RESULTS HTML:", html[:1000])
+                await browser.close()
+                return None
+        except Exception as e:
             html = await page.content()
+            print("DUCKDUCKGO ERROR HTML:", html[:1000])
             await browser.close()
-            return html
-        await browser.close()
-    return None
+            return None
