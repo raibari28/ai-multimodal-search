@@ -1,7 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import os
-
 from utils.serp_openai import fetch_and_summarize
 
 app = FastAPI()
