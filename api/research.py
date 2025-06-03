@@ -3,6 +3,10 @@ from fastapi.responses import JSONResponse
 from openai import OpenAI, RateLimitError, APIError, APIConnectionError, APITimeoutError, AuthenticationError
 import os
 
+import sys
+import asyncio
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 from utils.summarizer import gpt_generate_query, gpt_summarize
 from utils.browser import google_search_and_scrape
 from utils.extractor import extract_main_text
@@ -17,7 +21,7 @@ async def research_file(request: Request):
         if not text:
             return JSONResponse({"summary": "No text provided.", "query": ""}, status_code=400)
         query = gpt_generate_query(text[:2000])
-        html = google_search_and_scrape(query)
+        html = await google_search_and_scrape(query)   # Await the async Playwright function!
         web_article = extract_main_text(html)
         crosscheck_prompt = (
             f"User Content:\n{text[:1000]}\n\n---\n"
@@ -49,3 +53,7 @@ async def research_file(request: Request):
             "summary": f"Internal server error: {str(e)}",
             "query": ""
         }, status_code=500)
+
+# If you are deploying to Vercel or AWS Lambda, add:
+# from mangum import Mangum
+# handler = Mangum(app)
