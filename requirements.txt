@@ -4,9 +4,13 @@ serpapi>=2.0.0
 openai
 requests
 beautifulsoup4
+streamlit
+playwright
+trafilatura
 python-docx
 openpyxl
 python-pptx
+pandas
 pdfplumber
 pillow
 pytesseract
