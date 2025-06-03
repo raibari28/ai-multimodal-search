@@ -1,17 +1,4 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
-from openai import OpenAI, RateLimitError, APIError, APIConnectionError, APITimeoutError, AuthenticationError
-import os
-
-import sys
-import asyncio
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
-from utils.summarizer import gpt_generate_query, gpt_summarize
-from utils.browser import google_search_and_scrape
-from utils.extractor import extract_main_text
-
-app = FastAPI()
+from utils.browser import google_search_and_scrape, duckduckgo_search_and_scrape
 
 @app.post("/research")
 async def research_file(request: Request):
@@ -21,7 +8,13 @@ async def research_file(request: Request):
         if not text:
             return JSONResponse({"summary": "No text provided.", "query": ""}, status_code=400)
         query = gpt_generate_query(text[:2000])
-        html = await google_search_and_scrape(query)   # Await the async Playwright function!
+        # Try Google first
+        html = await google_search_and_scrape(query)
+        # Fallback to DuckDuckGo if Google blocks or fails
+        if html is None:
+            html = await duckduckgo_search_and_scrape(query)
+        if html is None:
+            return JSONResponse({"summary": "Failed to fetch search results from Google or DuckDuckGo.", "query": query}, status_code=502)
         web_article = extract_main_text(html)
         crosscheck_prompt = (
             f"User Content:\n{text[:1000]}\n\n---\n"
@@ -53,7 +46,3 @@ async def research_file(request: Request):
             "summary": f"Internal server error: {str(e)}",
             "query": ""
         }, status_code=500)
-
-# If you are deploying to Vercel or AWS Lambda, add:
-# from mangum import Mangum
-# handler = Mangum(app)
