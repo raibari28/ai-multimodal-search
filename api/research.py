@@ -1,4 +1,16 @@
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from openai import OpenAI, RateLimitError, APIError, APIConnectionError, APITimeoutError, AuthenticationError
+
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+from utils.summarizer import gpt_generate_query, gpt_summarize
 from utils.browser import google_search_and_scrape, duckduckgo_search_and_scrape
+from utils.extractor import extract_main_text
+
+app = FastAPI()
 
 @app.post("/research")
 async def research_file(request: Request):
@@ -8,10 +20,10 @@ async def research_file(request: Request):
         if not text:
             return JSONResponse({"summary": "No text provided.", "query": ""}, status_code=400)
         query = gpt_generate_query(text[:2000])
-        # Try Google first
+        # Try Google search first
         html = await google_search_and_scrape(query)
-        # Fallback to DuckDuckGo if Google blocks or fails
-        if html is None:
+        # If Google is blocked or fails, fallback to DuckDuckGo
+        if html is None or "Blocked by Google" in html or "selector not found" in html:
             html = await duckduckgo_search_and_scrape(query)
         if html is None:
             return JSONResponse({"summary": "Failed to fetch search results from Google or DuckDuckGo.", "query": query}, status_code=502)
@@ -46,3 +58,7 @@ async def research_file(request: Request):
             "summary": f"Internal server error: {str(e)}",
             "query": ""
         }, status_code=500)
+
+# Optional: For Vercel/AWS Lambda serverless support:
+# from mangum import Mangum
+# handler = Mangum(app)
