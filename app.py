@@ -3,6 +3,7 @@ import threading
 import io
 
 import streamlit as st
+import asyncio
 
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
@@ -56,7 +57,7 @@ async def research_file(file: UploadFile = File(...)):
     file_bytes = await file.read()
     text = extract_text_from_file(file_bytes, file.content_type, file.filename)
     query = gpt_generate_query(text[:2000])
-    html = google_search_and_scrape(query)
+    html = await google_search_and_scrape(query)
     web_article = extract_main_text(html)
     crosscheck_prompt = (
         f"Uploaded Document Content:\n{text[:1000]}\n\n---\n"
@@ -92,7 +93,7 @@ if uploaded:
             query = gpt_generate_query(text[:2000])
             st.write("**Generated Search Query:**", query)
         with st.spinner("Searching Google and extracting web content..."):
-            html = google_search_and_scrape(query)
+            html = asyncio.run(google_search_and_scrape(query))
             web_article = extract_main_text(html)
         with st.spinner("LLM: Comparing Document & Online Source..."):
             crosscheck_prompt = (
