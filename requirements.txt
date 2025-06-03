@@ -1,6 +1,6 @@
 fastapi
 uvicorn
-serpapi>=2.0.0
+git+https://github.com/serpapi/serpapi-python.git
 openai
 requests
 beautifulsoup4
