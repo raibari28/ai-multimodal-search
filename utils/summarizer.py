@@ -1,7 +1,14 @@
 import openai
 import os
 
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# Validate that the OpenAI API key is available before creating the client.
+_openai_key = os.environ.get("OPENAI_API_KEY")
+if not _openai_key:
+    raise RuntimeError(
+        "OPENAI_API_KEY environment variable must be set to use the summarizer"
+    )
+
+client = openai.OpenAI(api_key=_openai_key)
 
 def gpt_generate_query(prompt):
     messages = [
