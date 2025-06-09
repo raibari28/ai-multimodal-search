@@ -11,12 +11,13 @@ A Streamlit app that lets you:
 
 1. Clone this repo.
 2. `pip install -r requirements.txt`
-3. `playwright install`
+3. `playwright install --with-deps`
 4. Install [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) for image reading (Linux: `sudo apt install tesseract-ocr`).
 5. Set your OpenAI API key:  
    - On Linux/Mac: `export OPENAI_API_KEY=sk-...`
    - On Windows: `set OPENAI_API_KEY=sk-...`
 6. Run: `streamlit run app.py`
+   - The provided Dockerfile installs Playwright and Tesseract automatically.
 
 ## Usage
 
