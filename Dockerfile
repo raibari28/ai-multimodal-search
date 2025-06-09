@@ -5,8 +5,9 @@ WORKDIR /app
 COPY . /app
 
 RUN pip install --upgrade pip
-RUN apt-get update && apt-get install -y git
+RUN apt-get update && apt-get install -y git tesseract-ocr
 RUN pip install -r requirements.txt
+RUN playwright install --with-deps
 
 EXPOSE 8000
 
