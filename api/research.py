@@ -25,9 +25,20 @@ async def research_file(request: Request):
     text = data.get("text", "")
     if not text:
         return JSONResponse({"summary": "No text provided.", "source_url": ""}, status_code=400)
+    openai_key = os.environ.get("OPENAI_API_KEY")
+    serp_key = os.environ.get("SERPAPI_KEY")
+    if not openai_key or not serp_key:
+        missing = []
+        if not openai_key:
+            missing.append("OPENAI_API_KEY")
+        if not serp_key:
+            missing.append("SERPAPI_KEY")
+        detail = f"Missing required environment variables: {', '.join(missing)}"
+        return JSONResponse({"detail": detail}, status_code=500)
+
     result = fetch_and_summarize(
         text,
-        openai_key=os.environ["OPENAI_API_KEY"],
-        serpapi_key=os.environ["SERPAPI_KEY"]
+        openai_key=openai_key,
+        serpapi_key=serp_key,
     )
     return JSONResponse(result)
