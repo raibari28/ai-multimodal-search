@@ -9,15 +9,15 @@ class SearchRequest(BaseModel):
 
 @app.get("/")
 def root():
-    return {"status": "ok", "service": "multimodal-search"}
+    return {"status": "ok"}
 
 @app.post("/search")
 def search(req: SearchRequest):
     return {
         "query": req.query,
-        "type": req.type,
-        "results": [
-            f"Result for: {req.query}",
-            "Multimodal search placeholder"
-        ]
+        "results": ["result1", "result2"]
     }
+
+# 👇 REQUIRED for Vercel
+def handler(request, response):
+    return app
