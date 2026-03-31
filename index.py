@@ -1,9 +1,23 @@
-# api/index.py
 from fastapi import FastAPI
-from app.routes.search import router as search_router
+from pydantic import BaseModel
 
 app = FastAPI()
-app.include_router(search_router)
 
-# This is what Vercel uses
-app = app
+class SearchRequest(BaseModel):
+    query: str
+    type: str = "text"
+
+@app.get("/")
+def root():
+    return {"status": "ok", "service": "multimodal-search"}
+
+@app.post("/search")
+def search(req: SearchRequest):
+    return {
+        "query": req.query,
+        "type": req.type,
+        "results": [
+            f"Result for: {req.query}",
+            "Multimodal search placeholder"
+        ]
+    }
