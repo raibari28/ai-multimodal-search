@@ -1,20 +1,10 @@
 fastapi
-uvicorn
 pydantic
-python-multipart
-
-# parsing
+numpy
+faiss-cpu
+pillow
 pypdf
 python-docx
-openpyxl
 python-pptx
-
-# images
-pillow
-
-# embeddings + vector DB
-faiss-cpu
-numpy
-
-# optional (better embeddings)
-openai
+openpyxl
+python-multipart
