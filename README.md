@@ -27,8 +27,8 @@ A Streamlit app that lets you:
 
 ## Supported Files
 
-- PDF, DOCX, XLSX, PPTX
-- JPG, PNG (with OCR)
+- PDF, DOC, XLS, PPT
+- JPG, PNG (with OCR), GIF
 
 ## Notes
 
