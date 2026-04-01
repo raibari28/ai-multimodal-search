@@ -7,6 +7,6 @@ app = FastAPI()
 class SearchRequest(BaseModel):
     query: str
 
-@app.post("/")
+@api.post("/")
 def search(req: SearchRequest):
     return {"query": req.query}
