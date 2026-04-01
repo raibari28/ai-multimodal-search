@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import pdf from "pdf-parse";
 import mammoth from "mammoth";
 import * as XLSX from "xlsx";
