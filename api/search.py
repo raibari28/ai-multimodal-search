@@ -1,12 +1,20 @@
-# api/search.py
-from fastapi import FastAPI
-from pydantic import BaseModel
+import json
 
-app = FastAPI()
+def handler(request):
+    if request.method == "POST":
+        body = json.loads(request.body)
 
-class SearchRequest(BaseModel):
-    query: str
+        query = body.get("query", "")
 
-@api.post("/")
-def search(req: SearchRequest):
-    return {"query": req.query}
+        return {
+            "statusCode": 200,
+            "body": json.dumps({
+                "query": query,
+                "results": ["ok"]
+            })
+        }
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps({"status": "ok"})
+    }
