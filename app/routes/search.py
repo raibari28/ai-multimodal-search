@@ -11,9 +11,5 @@ class SearchRequest(BaseModel):
 def search(req: SearchRequest):
     return {
         "query": req.query,
-        "type": req.type,
-        "results": [
-            f"Result for {req.query}",
-            "Multimodal placeholder"
-        ]
+        "results": ["ok"]
     }
