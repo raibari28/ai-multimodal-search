@@ -7,4 +7,4 @@ app.include_router(search_router)
 
 @app.get("/")
 def root():
-    return {"status": "ok"}
+    return {"status": "ok", "service": "multimodal-search"}
