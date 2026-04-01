@@ -2,6 +2,9 @@
   "name": "ai-multimodal-search",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "build": "next build"
+  },
   "dependencies": {
     "next": "14.2.0",
     "react": "18.2.0",
